@@ -1,26 +1,302 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-canvas: #07070a;
+  --color-fg: #ededef;
+  --color-muted: #8a8f98;
+  --color-subtle: #5b606a;
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-violet: #7c5cff;
+  --color-cyan: #22d3ee;
+  --color-add: #3fb950;
+  --color-del: #f85149;
+  --color-warn: #e3b341;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --animate-marquee: marquee var(--marquee-duration, 40s) linear infinite;
+  --animate-aurora: aurora 20s ease-in-out infinite alternate;
+  --animate-glow: glow 6s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.8s linear infinite;
+  --animate-caret: caret 1.05s steps(1) infinite;
+  --animate-glitch: glitch 0.32s steps(2) infinite;
+  --animate-logo-blink: logo-blink 5.5s ease-in-out infinite;
+  --animate-logo-blink-pupil: logo-blink-pupil 5.5s ease-in-out infinite;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  @keyframes caret {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes glitch {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    25% {
+      transform: translate(-3px, 1px);
+    }
+    50% {
+      transform: translate(2px, -2px);
+    }
+    75% {
+      transform: translate(-1px, 2px);
+    }
+  }
+
+  /* Boro's eye: a quick blink near the end of each cycle. */
+  @keyframes logo-blink {
+    0%,
+    93%,
+    100% {
+      transform: scaleY(1);
+    }
+    95.5% {
+      transform: scaleY(0.08);
+    }
+  }
+
+  /* Hides the pupil while the eye is shut (same 5.5s cycle as logo-blink). */
+  @keyframes logo-blink-pupil {
+    0%,
+    93.8%,
+    98.2%,
+    100% {
+      opacity: 1;
+    }
+    94.6%,
+    97.2% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes aurora {
+    0% {
+      transform: translate3d(-10%, -5%, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(8%, 6%, 0) scale(1.15);
+    }
+    100% {
+      transform: translate3d(-4%, 10%, 0) scale(0.95);
+    }
+  }
+
+  @keyframes glow {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
   }
 }
 
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Per-direction fonts, loaded by app/{1,2,3}/layout.tsx. */
+  --font-mona: var(--nf-mona);
+  --font-jet: var(--nf-jet);
+  --font-grotesk: var(--nf-grotesk);
+  --font-serif: var(--nf-serif);
+  --font-isans: var(--nf-isans);
+  --font-plex: var(--nf-plex);
+}
+
+/* Direction 1: the page is a PR (light code review). */
+@theme {
+  --color-pr-bg: #ffffff;
+  --color-pr-canvas: #f6f8fa;
+  --color-pr-ink: #1f2328;
+  --color-pr-muted: #59636e;
+  --color-pr-line: #d1d9e0;
+  --color-pr-del: #cf222e;
+  --color-pr-del-bg: #ffebe9;
+  --color-pr-del-strong: #ffcecb;
+  --color-pr-add: #1a7f37;
+  --color-pr-add-bg: #dafbe1;
+  --color-pr-add-strong: #aceebb;
+  --color-pr-merged: #8250df;
+  --color-pr-link: #0969da;
+  --color-pr-btn: #1f883d;
+  --color-pr-warn: #9a6700;
+}
+
+/* Direction 2: watch this page break (dark terminal). */
+@theme {
+  --color-brk-bg: #000000;
+  --color-brk-panel: #0b0b0b;
+  --color-brk-ink: #ededed;
+  --color-brk-dim: #7d7d7d;
+  --color-brk-line: #222222;
+  --color-brk-red: #ff3b30;
+  --color-brk-amber: #ffb020;
+  --color-brk-green: #30d158;
+}
+
+/* Direction 3: editorial (warm paper). */
+@theme {
+  --color-paper: #f4f0e8;
+  --color-paper-deep: #ebe5d8;
+  --color-paper-ink: #141413;
+  --color-paper-muted: #6b665c;
+  --color-paper-rule: rgb(20 20 19 / 0.16);
+  --color-paper-accent: #ff4f1f;
+}
+
+body:has([data-theme="pr"]) {
+  background: var(--color-pr-bg);
+}
+
+body:has([data-theme="break"]) {
+  background: var(--color-brk-bg);
+}
+
+body:has([data-theme="paper"]) {
+  background: var(--color-paper);
+}
+
+html:has([data-theme="pr"]),
+html:has([data-theme="paper"]) {
+  color-scheme: light;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-fg);
+}
+
+::selection {
+  background: rgb(124 92 255 / 0.35);
+}
+
+@utility text-gradient {
+  background-image: linear-gradient(90deg, var(--color-violet), var(--color-cyan));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Fades the left/right edges (marquee). */
+@utility fade-x {
+  mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+}
+
+/* Fades out from the top-center (hero grid). */
+@utility fade-top {
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 30%, transparent 100%);
+}
+
+/* Fades out from the center (CTA grid). */
+@utility fade-center {
+  mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 20%, transparent 100%);
+}
+
+/* Direction 3: faint print grain over the whole page. */
+@utility paper-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.08 0 0 0 0 0.07 0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Direction 3: speckled ink for rubber stamps. */
+@utility stamp-ink {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -3 0 0 0 2.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+  mask-size: 140px 140px;
+}
+
+@layer components {
+  /* Cursor-following border + spotlight. --x/--y are set by <GlowCard>. */
+  .glow-card::before,
+  .glow-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .glow-card::before {
+    padding: 1px;
+    background: radial-gradient(
+      320px circle at var(--x, 50%) var(--y, 50%),
+      rgb(124 92 255 / 0.7),
+      rgb(34 211 238 / 0.3) 40%,
+      transparent 70%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .glow-card::after {
+    background: radial-gradient(
+      420px circle at var(--x, 50%) var(--y, 50%),
+      rgb(124 92 255 / 0.07),
+      transparent 50%
+    );
+  }
+
+  .glow-card:hover::before,
+  .glow-card:hover::after {
+    opacity: 1;
+  }
+
+  .shimmer {
+    background-image: linear-gradient(
+      110deg,
+      transparent 35%,
+      rgb(124 92 255 / 0.35) 50%,
+      transparent 65%
+    );
+    background-size: 200% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
