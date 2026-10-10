@@ -3,9 +3,9 @@
 import {
   FileCode2,
   Folder,
+  FlaskConical,
   GitPullRequest,
-  Radar,
-  ScanSearch,
+  Network,
   TriangleAlert,
   Wand2,
 } from "lucide-react";
@@ -18,27 +18,27 @@ import { PRCard } from "@/components/visuals/PRCard";
 import { cn, EASE_OUT } from "@/lib/utils";
 
 const STAGES = [
-  { label: "Detect", icon: Radar, duration: 2400, status: "Breaking change detected", dot: "bg-del" },
-  { label: "Scan", icon: ScanSearch, duration: 2800, status: "Scanning acme/web", dot: "bg-warn" },
-  { label: "Fix", icon: Wand2, duration: 3400, status: "Writing migration", dot: "bg-violet" },
-  { label: "Open PR", icon: GitPullRequest, duration: 4800, status: "PR #128 opened", dot: "bg-add" },
+  { label: "Map", icon: Network, duration: 2800, status: "Mapping integrations in acme/web", dot: "bg-cyan" },
+  { label: "Test", icon: FlaskConical, duration: 2600, status: "Nightly test failed: refunds", dot: "bg-del" },
+  { label: "Repair", icon: Wand2, duration: 3400, status: "Writing repair", dot: "bg-violet" },
+  { label: "Open PR", icon: GitPullRequest, duration: 4800, status: "PR #214 opened", dot: "bg-add" },
 ];
 
 type FileNode = { name: string; depth: number; dir?: boolean; hits?: number };
 
 const FILES: FileNode[] = [
   { name: "src", depth: 0, dir: true },
-  { name: "api", depth: 1, dir: true },
-  { name: "refunds.ts", depth: 2, hits: 1 },
-  { name: "users.ts", depth: 2 },
+  { name: "assistant", depth: 1, dir: true },
+  { name: "reply.ts", depth: 2, hits: 1 },
+  { name: "auth", depth: 1, dir: true },
+  { name: "session.ts", depth: 2, hits: 2 },
   { name: "billing", depth: 1, dir: true },
-  { name: "checkout.ts", depth: 2, hits: 2 },
-  { name: "plans.ts", depth: 2 },
-  { name: "jobs", depth: 1, dir: true },
-  { name: "invoice.ts", depth: 2, hits: 1 },
-  { name: "lib", depth: 1, dir: true },
-  { name: "stripe.ts", depth: 2 },
-  { name: "package.json", depth: 0 },
+  { name: "checkout.ts", depth: 2, hits: 3 },
+  { name: "refunds.ts", depth: 2, hits: 1 },
+  { name: "notify", depth: 1, dir: true },
+  { name: "sms.ts", depth: 2, hits: 2 },
+  { name: "webhooks", depth: 1, dir: true },
+  { name: "stripe.ts", depth: 2, hits: 4 },
 ];
 
 type CodeLine =
@@ -46,24 +46,23 @@ type CodeLine =
   | { kind: "add"; code: string; order: number };
 
 const CODE: CodeLine[] = [
-  { kind: "ctx", code: 'import { stripe } from "@/lib/stripe";' },
-  { kind: "ctx", code: "" },
-  { kind: "ctx", code: "export async function checkout(order: Order) {" },
-  { kind: "del", code: "  const charge = await stripe.charges.create({" },
-  { kind: "add", code: "  const intent = await stripe.paymentIntents.create({", order: 0 },
-  { kind: "ctx", code: "    amount: order.total," },
-  { kind: "ctx", code: '    currency: "usd",' },
-  { kind: "del", code: "    source: order.cardToken," },
-  { kind: "add", code: "    payment_method: order.paymentMethodId,", order: 1 },
-  { kind: "add", code: "    confirm: true,", order: 2 },
-  { kind: "ctx", code: "  });" },
-  { kind: "del", code: "  return charge.id;" },
-  { kind: "add", code: "  return intent.id;", order: 3 },
+  { kind: "ctx", code: "export async function onStripeEvent(event: Event) {" },
+  { kind: "ctx", code: "  switch (event.type) {" },
+  { kind: "ctx", code: '    case "refund.updated":' },
+  { kind: "del", code: "      const refund = await db.refunds.get(event.id);" },
+  { kind: "del", code: "      await refund.markSettled();" },
+  { kind: "add", code: "      await db.refunds.upsert(event.data);", order: 0 },
+  { kind: "add", code: "      await reconcileRefund(event.data.charge);", order: 1 },
+  { kind: "ctx", code: "      break;" },
+  { kind: "ctx", code: '    case "charge.refunded":' },
+  { kind: "add", code: "      await reconcileRefund(event.data.id);", order: 2 },
+  { kind: "ctx", code: "      break;" },
+  { kind: "ctx", code: "  }" },
   { kind: "ctx", code: "}" },
 ];
 
 /**
- * Looping product demo: detect a breaking change → scan the repo → write the fix → open a PR.
+ * Looping product demo: map integrations → nightly test catches drift → write the repair → open a PR.
  * Pauses while scrolled out of view.
  */
 export function HeroPipeline() {
@@ -106,7 +105,7 @@ export function HeroPipeline() {
                   transition={{ duration: 0.5, ease: EASE_OUT }}
                   className="absolute inset-x-3 bottom-3 sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px]"
                 >
-                  <PRCard />
+                  <PRCard title="Make refund webhook handler order-independent" number={214} />
                 </motion.div>
               )}
             </div>
@@ -193,12 +192,11 @@ function EventBanner({ stage }: { stage: number }) {
       >
         <Tag tone="del">
           <TriangleAlert className="size-3" />
-          Breaking
+          Drift
         </Tag>
-        <span className="hidden shrink-0 font-mono text-muted sm:inline">stripe · API 2026-09-30</span>
+        <span className="hidden shrink-0 font-mono text-muted sm:inline">stripe · nightly test</span>
         <span className="truncate text-fg/90">
-          <code className="font-mono text-[#c4b5fd]">charges.create</code> was removed. Use{" "}
-          <code className="font-mono text-[#c4b5fd]">paymentIntents.create</code>.
+          Refund webhooks now arrive out of order. No changelog entry.
         </span>
       </motion.div>
       {stage >= 2 && (
@@ -207,7 +205,7 @@ function EventBanner({ stage }: { stage: number }) {
           animate={{ opacity: 1 }}
           className="ml-auto hidden shrink-0 font-mono text-[11px] text-warn md:inline"
         >
-          4 usages · 3 files
+          Refunds workflow · 1 file
         </motion.span>
       )}
     </div>
@@ -229,19 +227,19 @@ function FileTree({ stage }: { stage: number }) {
             key={file.name}
             className={cn(
               "mx-2 flex items-center gap-1.5 rounded-md py-[3px] pr-2 font-mono text-[12px] transition-colors duration-300",
-              hit ? "bg-warn/10 text-fg" : "text-muted",
-              hit && stage >= 2 && file.name === "checkout.ts" && "ring-1 ring-inset ring-warn/30",
+              hit ? "bg-cyan/8 text-fg" : "text-muted",
+              hit && stage >= 2 && file.name === "stripe.ts" && "ring-1 ring-inset ring-del/40",
             )}
             style={{ paddingLeft: 8 + file.depth * 14, transitionDelay: hit ? `${i * 120}ms` : "0ms" }}
           >
-            <Icon className={cn("size-3.5 shrink-0", hit ? "text-warn" : "text-subtle")} />
+            <Icon className={cn("size-3.5 shrink-0", hit ? "text-cyan" : "text-subtle")} />
             <span className="truncate">{file.name}</span>
             {hit && (
               <motion.span
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.12 + 0.15 }}
-                className="ml-auto rounded bg-warn/15 px-1.5 text-[10px] leading-4 text-warn"
+                className="ml-auto rounded bg-cyan/15 px-1.5 text-[10px] leading-4 text-cyan"
               >
                 {file.hits}
               </motion.span>
@@ -271,7 +269,7 @@ function Editor({ stage }: { stage: number }) {
       <div className="flex h-9 shrink-0 items-center gap-2 border-b border-line px-4 font-mono text-[11px]">
         <span className="flex items-center gap-1.5 rounded-md bg-white/4 px-2 py-1 text-fg/80">
           <FileCode2 className="size-3 text-cyan" />
-          src/billing/checkout.ts
+          src/webhooks/stripe.ts
         </span>
         {fixing && (
           <motion.span
@@ -280,7 +278,7 @@ function Editor({ stage }: { stage: number }) {
             transition={{ delay: 0.3 }}
             className="ml-auto"
           >
-            <span className="text-add">+4</span> <span className="text-del">−3</span>
+            <span className="text-add">+3</span> <span className="text-del">−2</span>
           </motion.span>
         )}
       </div>
