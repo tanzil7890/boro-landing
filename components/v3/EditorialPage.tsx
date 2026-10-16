@@ -3,15 +3,26 @@ import { CountUp } from "@/components/ui/CountUp";
 import { LogoMark } from "@/components/ui/Logo";
 import { audiences, faqs, howItWorks, problem, site, whyNow } from "@/lib/content";
 import { cn } from "@/lib/utils";
-import { analysis, letters, lead, masthead, opinion, steps, story, ticker } from "./content";
+import { analysis, coupon, letters, lead, masthead, opinion, publication, steps, story, ticker } from "./content";
 import { Coupon, InlineForm } from "./Forms";
 import { PartnerButton, PartnerLink } from "./DesignPartner";
 import { Drawing, FadeUp, LineReveal, Rule, Stamp } from "./Motion";
 
 const WRAP = "mx-auto w-full max-w-[1240px] px-5 sm:px-8";
 
-// Fine-line illustrations for Detect / Scan / Fix / Ship (140×110 box).
+// Fine-line illustrations for Map (scan the code) / Watch (a notice) / Test (the loop) / Repair (branch + check), 140×110 box.
 const DRAWINGS: { paths: string[]; dots?: [number, number][] }[] = [
+  {
+    paths: [
+      "M14 24H78",
+      "M14 38H96",
+      "M14 52H62",
+      "M14 66H90",
+      "M14 80H54",
+      "M92 34A24 24 0 1 1 92 82A24 24 0 1 1 92 34",
+      "M109 75L128 96",
+    ],
+  },
   {
     paths: [
       "M22 8H88L108 28V102H22Z",
@@ -22,17 +33,6 @@ const DRAWINGS: { paths: string[]; dots?: [number, number][] }[] = [
       "M118 72A16 16 0 1 1 118 104A16 16 0 1 1 118 72",
       "M118 80V90",
       "M118 96V96.5",
-    ],
-  },
-  {
-    paths: [
-      "M14 24H78",
-      "M14 38H96",
-      "M14 52H62",
-      "M14 66H90",
-      "M14 80H54",
-      "M92 34A24 24 0 1 1 92 82A24 24 0 1 1 92 34",
-      "M109 75L128 96",
     ],
   },
   {
@@ -82,7 +82,7 @@ function SectionTitle({ title, accent, className }: { title: string; accent: str
   );
 }
 
-/** Direction 3: the landing page as a printed publication, "The Changelog Nobody Reads". */
+/** Direction 3: the landing page as a printed publication, "The Integration Desk". */
 export function EditorialPage() {
   return (
     <>
@@ -118,7 +118,7 @@ export function EditorialPage() {
         <Rule />
       </header>
 
-      {/* Breaking-news ticker: breaking news = breaking changes */}
+      {/* Breaking-news ticker: breaking news = integrations about to break */}
       <div className={cn(WRAP, "mt-3")}>
         <div className="flex overflow-hidden bg-paper-ink text-paper">
           <span className="z-10 shrink-0 bg-paper-accent px-3 py-2 font-plex text-[11px] font-medium uppercase tracking-[0.2em]">
@@ -147,7 +147,14 @@ export function EditorialPage() {
             <Kicker>{lead.kicker}</Kicker>
             <h1 className="mt-6 font-serif text-[clamp(4rem,10.5vw,10rem)] leading-[0.86] tracking-[-0.03em]">
               <LineReveal
-                lines={[...lead.lines, <em key="accent" className="text-paper-accent">{lead.accent}</em>]}
+                lines={[
+                  ...lead.lines,
+                  ...lead.accentLines.map((line) => (
+                    <em key={line} className="text-paper-accent">
+                      {line}
+                    </em>
+                  )),
+                ]}
               />
             </h1>
           </div>
@@ -159,7 +166,7 @@ export function EditorialPage() {
             <FadeUp delay={0.65}>
               <InlineForm />
               <p className="mt-3 font-serif text-xl italic">
-                Run an API? <PartnerLink placement="lead" />
+                {lead.partnerPrompt} <PartnerLink placement="lead" />
               </p>
             </FadeUp>
           </aside>
@@ -215,7 +222,7 @@ export function EditorialPage() {
 
             <figure>
               <figcaption className="font-plex text-[10px] uppercase tracking-[0.2em] text-paper-muted">
-                From the archive · Fig. 1
+                Last night&apos;s test report · Fig. 1
               </figcaption>
               <div className="relative mt-3">
                 <div className="-rotate-2 border border-paper-rule bg-[#fbf8f2] p-5 font-plex text-[13px] leading-relaxed shadow-[0_10px_30px_-12px_rgb(20_20_19/0.35)]">
@@ -229,7 +236,7 @@ export function EditorialPage() {
                     ))}
                   </ul>
                 </div>
-                <Stamp className="absolute -bottom-6 right-2">Fixed by Boro</Stamp>
+                <Stamp className="absolute -bottom-6 right-2">{story.stamp}</Stamp>
               </div>
             </figure>
           </aside>
@@ -266,6 +273,7 @@ export function EditorialPage() {
           <Kicker>{analysis.kicker}</Kicker>
           <FadeUp>
             <SectionTitle title={analysis.title} accent={analysis.titleAccent} className="mt-4 max-w-4xl" />
+            <p className="mt-6 max-w-2xl font-serif text-2xl italic leading-snug text-paper-muted">{analysis.standfirst}</p>
           </FadeUp>
           <div className="relative mt-14">
             <Rule className="absolute inset-x-0 top-[7px] hidden md:block" />
@@ -290,7 +298,7 @@ export function EditorialPage() {
         </Section>
 
         {/* Opinion: audiences */}
-        <Section className="border-b border-paper-rule py-16 lg:py-24">
+        <Section id="teams" className="border-b border-paper-rule py-16 lg:py-24">
           <Kicker>{opinion.kicker}</Kicker>
           <div className="mt-8 grid gap-12 md:grid-cols-2 md:divide-x md:divide-paper-rule">
             {audiences.tabs.map((tab, i) => (
@@ -309,14 +317,14 @@ export function EditorialPage() {
                     </li>
                   ))}
                 </ul>
-                {tab.key === "providers" && <PartnerButton placement="opinion-providers" className="mt-8" />}
+                {tab.key === "teams" && <PartnerButton placement="opinion-teams" className="mt-8" />}
               </FadeUp>
             ))}
           </div>
         </Section>
 
         {/* Letters: FAQ */}
-        <Section id="letters" className="border-b border-paper-rule py-16 lg:py-24">
+        <Section id="faq" className="border-b border-paper-rule py-16 lg:py-24">
           <Kicker>{letters.kicker}</Kicker>
           <FadeUp>
             <SectionTitle title={letters.title} accent={letters.titleAccent} className="mt-4" />
@@ -349,7 +357,7 @@ export function EditorialPage() {
         <Section id="subscribe" className="py-20 lg:py-28">
           <Coupon />
           <p className="mt-10 text-center font-serif text-xl italic">
-            Run an API? <PartnerLink placement="coupon" />
+            {coupon.partnerPrompt} <PartnerLink placement="coupon" />
           </p>
         </Section>
       </main>
@@ -363,7 +371,7 @@ export function EditorialPage() {
             <span className="font-serif text-2xl">Boro</span>
           </span>
           <p className="font-serif italic sm:text-center">
-            Set in Instrument Serif, Instrument Sans &amp; IBM Plex Mono. Printed on the internet at{" "}
+            {publication}. Set in Instrument Serif, Instrument Sans &amp; IBM Plex Mono. Printed on the internet at{" "}
             <a href={site.url} className="underline decoration-paper-rule underline-offset-4 hover:text-paper-accent">
               {site.domain}
             </a>

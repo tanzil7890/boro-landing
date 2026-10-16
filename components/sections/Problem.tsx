@@ -1,4 +1,4 @@
-import { MailX, Siren, Sparkles } from "lucide-react";
+import { CalendarClock, KeyRound, Waves } from "lucide-react";
 import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
 import { CountUp } from "@/components/ui/CountUp";
@@ -8,33 +8,31 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Tag } from "@/components/ui/Tag";
 import { problem } from "@/lib/content";
 
-const icons = { breaking: Siren, features: Sparkles, changelogs: MailX };
+const icons = { announced: CalendarClock, silent: Waves, expiring: KeyRound };
 
 const visuals: Record<string, ReactNode> = {
-  breaking: (
+  announced: (
+    <div className="flex items-center gap-2 rounded-lg border border-line bg-black/30 p-3 font-mono text-[11px]">
+      <span className="truncate text-fg/80">shopify · API 2025-07 sunset</span>
+      <Tag tone="warn" className="ml-auto">
+        in 21 days
+      </Tag>
+    </div>
+  ),
+  silent: (
     <div className="rounded-lg border border-line bg-black/30 p-3 font-mono text-[11px]">
       <div className="flex items-center gap-2 text-del">
         <span className="size-1.5 animate-pulse rounded-full bg-del" />
-        POST /v1/charges → 400
+        refund.updated before charge.refunded
       </div>
-      <div className="mt-1 text-muted">error: parameter_unknown &quot;source&quot;</div>
+      <div className="mt-1 text-muted">no changelog entry</div>
     </div>
   ),
-  features: (
+  expiring: (
     <div className="flex items-center gap-2 rounded-lg border border-line bg-black/30 p-3 font-mono text-[11px]">
-      <Tag tone="add">
-        <Sparkles className="size-3" />
-        New
-      </Tag>
-      <span className="truncate text-fg/80">tax.calculations</span>
-      <span className="ml-auto shrink-0 text-subtle">0 call sites</span>
-    </div>
-  ),
-  changelogs: (
-    <div className="flex items-center gap-2 rounded-lg border border-line bg-black/30 p-3 font-mono text-[11px]">
-      <span className="truncate text-muted">changelog.vendor.com/2026-09</span>
-      <Tag tone="warn" className="ml-auto">
-        47 unread
+      <span className="truncate text-muted">twilio · 429 Too Many Requests</span>
+      <Tag tone="del" className="ml-auto">
+        ×40
       </Tag>
     </div>
   ),

@@ -3,10 +3,10 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { LogoMark } from "@/components/ui/Logo";
-import { audiences, faqs, howItWorks, problem, site, whyNow } from "@/lib/content";
+import { audiences, faqs, finalCta, howItWorks, integrationMap, problem, site, whyNow } from "@/lib/content";
 import { useWaitlist } from "@/lib/useWaitlist";
 import { cn, EASE_OUT } from "@/lib/utils";
-import { gitLog, log, watch } from "./content";
+import { gitLog, log, mapCommand, watch } from "./content";
 import { PartnerCommand, PartnerLink } from "./DesignPartner";
 
 function Wrap({ id, children, className }: { id?: string; children: ReactNode; className?: string }) {
@@ -49,7 +49,7 @@ const LEVEL: Record<string, string> = {
 export function LogSection() {
   return (
     <Wrap>
-      <Heading command={log.command} title={log.title}>
+      <Heading command={log.command} title={problem.title}>
         {problem.description}
       </Heading>
       <Pane title="integrations.log" className="mt-12">
@@ -125,7 +125,7 @@ export function WatchSection() {
 
   return (
     <Wrap id="how-it-works">
-      <Heading command="$ man boro" title={watch.title}>
+      <Heading command="$ man boro" title={howItWorks.title}>
         {howItWorks.description}
       </Heading>
       <div className="mt-12 grid gap-10 lg:grid-cols-[1.35fr_1fr]">
@@ -173,6 +173,59 @@ export function WatchSection() {
           ))}
         </ol>
       </div>
+    </Wrap>
+  );
+}
+
+const HEALTH: Record<string, { glyph: string; tone: string }> = {
+  healthy: { glyph: "✓", tone: "text-brk-green" },
+  warning: { glyph: "⚠", tone: "text-brk-amber" },
+  failing: { glyph: "✖", tone: "text-brk-red" },
+};
+
+/** The integration map as `boro map` output: workflow, providers, call sites, health. */
+export function MapSection() {
+  return (
+    <Wrap id="map">
+      <Heading command={mapCommand} title={integrationMap.title}>
+        {integrationMap.description}
+      </Heading>
+      <Pane title="boro map" className="mt-12">
+        <div className="overflow-x-auto p-5 font-jet text-[13px] leading-8">
+          <table className="w-full min-w-[640px] border-collapse text-left">
+            <thead className="text-brk-dim">
+              <tr>
+                <th className="pr-6 font-normal">WORKFLOW</th>
+                <th className="pr-6 font-normal">PROVIDERS</th>
+                <th className="pr-6 font-normal">CALL SITES</th>
+                <th className="font-normal">STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {integrationMap.workflows.map((wf, i) => {
+                const health = HEALTH[wf.status];
+                return (
+                  <motion.tr
+                    key={wf.name}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.15 }}
+                  >
+                    <td className="whitespace-nowrap pr-6 text-brk-ink">{wf.name}</td>
+                    <td className="whitespace-nowrap pr-6 text-brk-ink/80">{wf.providers.join(", ")}</td>
+                    <td className="pr-6 text-brk-dim">{wf.callSites}</td>
+                    <td className={cn("whitespace-nowrap", health.tone)}>
+                      {health.glyph}{" "}
+                      <span className={wf.status === "healthy" ? "text-brk-dim" : undefined}>{wf.note}</span>
+                    </td>
+                  </motion.tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Pane>
     </Wrap>
   );
 }
@@ -225,7 +278,7 @@ export function PanesSection() {
                   </li>
                 ))}
               </ul>
-              {tab.key === "providers" && <PartnerCommand placement="for-providers" className="mt-8" />}
+              {tab.key === "teams" && <PartnerCommand placement="for-teams" className="mt-8" />}
             </div>
           </Pane>
         ))}
@@ -234,7 +287,8 @@ export function PanesSection() {
   );
 }
 
-const TOPICS = ["access", "detection", "dependabot", "providers", "languages", "pricing"];
+// One `boro help <topic>` per faqs.items entry, in order.
+const TOPICS = ["agents", "access", "production", "packages", "languages", "providers", "pricing"];
 
 export function HelpSection() {
   const [open, setOpen] = useState<number | null>(0);
@@ -254,7 +308,7 @@ export function HelpSection() {
                   onClick={() => setOpen(isOpen ? null : i)}
                   className="flex w-full flex-col gap-1 px-5 py-3.5 text-left font-jet text-[13px] transition-colors hover:bg-white/3 sm:flex-row sm:gap-6"
                 >
-                  <span className="shrink-0 text-brk-green sm:w-48">boro help {TOPICS[i]}</span>
+                  <span className="shrink-0 text-brk-green sm:w-48">boro help {TOPICS[i] ?? "more"}</span>
                   <span className="text-brk-ink">{item.q}</span>
                   <span className="ml-auto hidden text-brk-dim sm:inline">{isOpen ? "−" : "+"}</span>
                 </button>
@@ -296,18 +350,19 @@ export function JoinSection() {
 
   return (
     <Wrap id="join">
-      <h2 className="text-balance text-5xl font-bold leading-[0.9] tracking-[-0.05em] sm:text-8xl">
-        Let your APIs
+      <h2 className="text-balance text-5xl font-bold leading-[0.9] tracking-[-0.05em] sm:text-7xl">
+        {finalCta.titleLead}
         <br />
-        <span className="text-brk-green">heal themselves.</span>
+        <span className="text-brk-green">{finalCta.titleAccent}</span>
       </h2>
+      <p className="mt-6 text-lg text-brk-dim">{finalCta.description}</p>
       <form
         onSubmit={(e) => {
           setSubmitted(email.trim());
           submit(e);
         }}
         noValidate
-        className="mt-12 rounded-md border border-brk-line bg-brk-panel p-5 font-jet text-sm sm:p-6 sm:text-base"
+        className="mt-10 rounded-md border border-brk-line bg-brk-panel p-5 font-jet text-sm sm:p-6 sm:text-base"
       >
         <div className="flex flex-wrap items-center gap-x-2 gap-y-3">
           <span className="text-brk-green">$</span>
@@ -343,7 +398,7 @@ export function JoinSection() {
       </form>
       <p className="mt-3 font-jet text-xs text-brk-dim">Press Enter to run.</p>
       <div className="mt-10 flex flex-wrap items-center gap-3 font-jet text-sm text-brk-dim">
-        run an API instead?
+        {finalCta.partnerPrompt.toLowerCase()}
         <PartnerCommand placement="join" />
       </div>
     </Wrap>
@@ -360,7 +415,7 @@ export function BreakFooter() {
           {site.domain}
         </a>
         <PartnerLink placement="footer" />
-        <span className="ml-auto">uptime: self-healing</span>
+        <span className="ml-auto">integrations: all passing</span>
       </div>
     </footer>
   );

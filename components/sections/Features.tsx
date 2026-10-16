@@ -1,14 +1,13 @@
 import {
-  ArrowRight,
   Bell,
-  Braces,
+  BellRing,
   CircleCheck,
   CircleX,
   FlaskConical,
-  Layers,
-  ScrollText,
+  GitPullRequest,
+  LayoutDashboard,
+  Network,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
@@ -16,55 +15,66 @@ import { GlowCard } from "@/components/ui/GlowCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Tag } from "@/components/ui/Tag";
-import { features, vendors } from "@/lib/content";
+import { features } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 const icons = {
-  vendors: Layers,
-  sources: ScrollText,
-  language: Braces,
+  map: Network,
+  alerts: BellRing,
+  tests: FlaskConical,
   control: ShieldCheck,
-  tested: FlaskConical,
-  adoption: Sparkles,
+  evidence: GitPullRequest,
+  health: LayoutDashboard,
   notify: Bell,
 };
 
-const wide = new Set(["vendors", "control"]);
+const wide = new Set(["map", "control"]);
 
 const mono = "rounded-lg border border-line bg-black/30 font-mono text-[11px]";
 
+const MAP_ROWS = [
+  { provider: "Stripe", workflow: "Checkout", sites: 14 },
+  { provider: "Stripe", workflow: "Refunds", sites: 6 },
+  { provider: "Auth0", workflow: "Sign-up & login", sites: 9 },
+  { provider: "OpenAI", workflow: "AI assistant", sites: 5 },
+];
+
 const visuals: Record<string, ReactNode> = {
-  vendors: (
-    <div className="flex flex-wrap gap-2">
-      {vendors.names.slice(0, 9).map((name, i) => (
-        <span
-          key={name}
-          className="inline-flex items-center gap-2 rounded-full border border-line bg-white/3 px-3 py-1.5 text-xs text-fg/80"
+  map: (
+    <div className="grid gap-2 sm:grid-cols-2">
+      {MAP_ROWS.map((r, i) => (
+        <div
+          key={r.workflow}
+          className="flex items-center gap-2 rounded-lg border border-line bg-white/2 px-3 py-2.5 text-xs"
         >
           <span
             className="size-1.5 animate-pulse rounded-full bg-add"
             style={{ animationDelay: `${i * 180}ms` }}
           />
-          {name}
-        </span>
+          <span className="text-fg/85">{r.provider}</span>
+          <span className="text-subtle">→</span>
+          <span className="truncate text-[#b9a8ff]">{r.workflow}</span>
+          <span className="ml-auto font-mono text-[11px] text-subtle">{r.sites}</span>
+        </div>
       ))}
     </div>
   ),
-  sources: (
-    <div className={cn(mono, "flex flex-col gap-1.5 p-3 text-muted")}>
-      <span>CHANGELOG.md</span>
-      <span>openapi.yaml</span>
-      <span>stripe-node@18.0.0</span>
-      <span className="text-warn">Deprecation: true</span>
+  alerts: (
+    <div className={cn(mono, "p-3")}>
+      <div className="flex items-center gap-2">
+        <Tag tone="warn">Mar 31</Tag>
+        <span className="truncate text-fg/80">stripe · hits Refunds</span>
+      </div>
     </div>
   ),
-  language: (
-    <div className={cn(mono, "flex flex-wrap items-center gap-1.5 p-3 text-fg/80")}>
-      <span>checkout()</span>
-      <ArrowRight className="size-3 text-subtle" />
-      <span>stripe.charges</span>
-      <ArrowRight className="size-3 text-subtle" />
-      <span className="text-warn">create()</span>
+  tests: (
+    <div className={cn(mono, "flex flex-col gap-1.5 p-3")}>
+      {["webhooks", "pagination", "rate limits"].map((check) => (
+        <span key={check} className="flex items-center gap-2 text-fg/80">
+          <CircleCheck className="size-3.5 text-add" />
+          {check}
+        </span>
+      ))}
     </div>
   ),
   control: (
@@ -89,27 +99,24 @@ const visuals: Record<string, ReactNode> = {
       ))}
     </div>
   ),
-  tested: (
-    <div className={cn(mono, "flex flex-col gap-1.5 p-3")}>
-      {["Build", "Unit tests", "Lint"].map((check) => (
-        <span key={check} className="flex items-center gap-2 text-fg/80">
-          <CircleCheck className="size-3.5 text-add" />
-          {check}
-        </span>
-      ))}
+  evidence: (
+    <div className={cn(mono, "flex flex-wrap items-center gap-2 p-3")}>
+      <Tag tone="del">before: 1 failing</Tag>
+      <Tag tone="add">after: 6/6 passing</Tag>
     </div>
   ),
-  adoption: (
-    <div className={cn(mono, "flex items-center gap-2 p-3")}>
-      <Tag tone="add">New feature</Tag>
-      <span className="truncate text-fg/80">PR #131 · Adopt tax.calculations</span>
+  health: (
+    <div className={cn(mono, "flex items-center justify-between gap-2 p-3")}>
+      <span className="text-add">4 healthy</span>
+      <span className="text-warn">2 deadlines</span>
+      <span className="text-del">1 failing</span>
     </div>
   ),
   notify: (
     <div className={cn(mono, "p-3")}>
       <div className="text-subtle">#eng-platform</div>
       <div className="mt-1 text-fg/85">
-        <span className="text-[#b9a8ff]">boro</span>: PR #128 is ready for review
+        <span className="text-[#b9a8ff]">boro</span>: Refunds test failed. Fix in PR #214
       </div>
     </div>
   ),

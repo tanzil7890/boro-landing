@@ -4,9 +4,9 @@ export const site = {
   name: "Boro",
   url: "https://hey-boro.com",
   domain: "hey-boro.com",
-  tagline: "Self-maintaining APIs",
+  tagline: "Keep your integrations working",
   description:
-    "When an API you depend on ships a breaking change or a new feature, Boro finds every affected line in your codebase and opens a pull request with the fix.",
+    "Boro maps every outside API your code depends on, watches for changes, tests each integration every night, and opens a pull request with the fix before your customers notice.",
 };
 
 // "Become a design partner": opens the founder's Cal.com booking (30-min meeting) in a popup.
@@ -18,90 +18,93 @@ export const designPartner = {
 
 export const nav = [
   { label: "How it works", href: "#how-it-works" },
+  { label: "Use cases", href: "#use-cases" },
   { label: "For teams", href: "#teams" },
-  { label: "For providers", href: "#providers" },
   { label: "FAQ", href: "#faq" },
 ];
 
 export const hero = {
   badge: "New",
-  eyebrow: "Dependabot for APIs",
-  titleLead: ["APIs", "that"],
-  titleAccent: ["maintain", "themselves."],
+  eyebrow: "Integration reliability for engineering teams",
+  titleLead: ["Every", "integration,"],
+  titleAccent: ["always", "working."],
   description: site.description,
   note: "Work email required. No spam, ever.",
-  partnerPrompt: "Run an API?",
+  partnerPrompt: "Run a platform team?",
 };
 
 export const vendors = {
-  heading: "Built for the APIs your product depends on",
+  heading: "Built for the outside APIs your product runs on",
   names: [
     "Stripe",
+    "Shopify",
     "Twilio",
     "OpenAI",
-    "Shopify",
     "Plaid",
-    "AWS SDK",
-    "GitHub",
-    "Slack",
-    "SendGrid",
-    "Anthropic",
     "Auth0",
-    "Segment",
+    "Klaviyo",
+    "Anthropic",
+    "Salesforce",
     "HubSpot",
-    "Mapbox",
+    "Avalara",
+    "EasyPost",
+    "Okta",
+    "Segment",
+    "SendGrid",
+    "Slack",
   ],
+  categories: ["Payments", "Commerce", "Messaging", "AI", "Auth", "CRM", "Tax", "Shipping", "Data"],
 };
 
 export const problem = {
   eyebrow: "The problem",
-  title: "API communication is broken.",
+  title: "Nobody owns the question: do our integrations still work?",
   description:
-    "Breaking changes ship with little warning. Useful features quietly launch and go unnoticed. And the changelog? Nobody reads it.",
+    "Your product depends on 10 to 30 outside APIs. They change, expire and behave differently over time. Today, engineers find out when a customer complains.",
   cards: [
     {
-      id: "breaking",
-      title: "Breaking changes ship with little warning",
+      id: "announced",
+      title: "Announced changes, missed deadlines",
       description:
-        "A field gets renamed, an endpoint disappears, and you find out from your error tracker instead of your vendor.",
+        "Deprecations and version sunsets are published somewhere. Nobody connects them to the code and the workflow they will break.",
     },
     {
-      id: "features",
-      title: "Useful features go unnoticed",
+      id: "silent",
+      title: "Silent drift nobody announced",
       description:
-        "Vendors ship the improvements you asked for, and they sit unused because nobody saw the announcement.",
+        "A webhook arrives in a different order. A payload gains a field. The provider says nothing, and your refund flow quietly fails.",
     },
     {
-      id: "changelogs",
-      title: "Changelogs don't get read",
+      id: "expiring",
+      title: "Things that expire or run out",
       description:
-        "Release notes are scattered across blogs, emails and docs. Keeping up is nobody's job.",
+        "OAuth tokens and scopes expire. Rate limits start biting after a traffic spike. Models get retired. It always happens at the worst time.",
     },
   ],
   stats: [
     {
+      value: 10,
+      suffix: "–30",
+      label: "outside APIs a typical product depends on. Most have no clear owner.",
+    },
+    {
       value: 50,
       suffix: "+",
-      label: "API vendors we've worked with. The same pattern shows up at every one.",
+      label: "API vendors we've worked with. The same breakages show up at every one.",
     },
     {
       value: 30,
       suffix: "%+",
       label: "of our service downtime at AWS came from external API and package changes that went unnoticed.",
     },
-    {
-      value: 0,
-      suffix: "",
-      label: "changelogs your team will need to read once Boro is watching.",
-    },
   ],
 };
 
 export const whyNow = {
   eyebrow: "Why now",
-  title: "The infrastructure exists. The application layer doesn't.",
+  title: "Agents can change code. Nobody is watching the integrations.",
   description:
-    "This friction made sense before agentic coding tools. It doesn't anymore.",
+    "Integration breakage made sense when every check had to be done by hand. It doesn't anymore.",
   items: [
     {
       label: "Two years ago",
@@ -113,77 +116,207 @@ export const whyNow = {
       label: "Today",
       title: "Agents in the codebase are standard practice",
       description:
-        "Claude Code, Devin, Greptile and others proved that developers and enterprises will grant codebase access to tools that are valuable.",
+        "Claude Code, Cursor, Devin and others proved that teams will grant codebase access to tools that are valuable. But they only run when someone asks.",
     },
     {
       label: "What's missing",
-      title: "A layer between API providers and the code that calls them",
+      title: "A system that knows which code serves which workflow, and tests it",
       description:
-        "Automated code changes are solved. Boro connects API providers to their customers' codebases, so changes get applied, not just announced.",
+        "Boro keeps a live map of every integration, links it to the business flow it powers, and checks it continuously. So breakages get caught and repaired, not discovered.",
     },
   ],
 };
 
 export const howItWorks = {
   eyebrow: "How it works",
-  title: "From changelog to merged PR, automatically.",
+  title: "Map. Watch. Test. Repair.",
   description:
-    "Boro runs the whole loop, so your team only does the last step: review and merge.",
+    "Boro runs the whole loop continuously, so your team only does the last step: review and merge.",
   steps: [
     {
-      label: "Detect",
-      title: "Every upstream change, caught",
+      label: "Map",
+      title: "Every integration, linked to the workflow it serves",
       description:
-        "Boro watches changelogs, OpenAPI specs, SDK releases and deprecation notices for the APIs you use, and classifies each change as breaking, deprecated or new.",
+        "Boro connects to your repos and finds every place your code calls an outside API, then groups those calls by business workflow: checkout, refunds, sign-up, notifications, AI features.",
     },
     {
-      label: "Scan",
-      title: "Mapped to the exact lines it affects",
+      label: "Watch",
+      title: "Changes that matter to you, with a deadline",
       description:
-        "Each change is traced to the precise call sites across your repositories, with structural code analysis instead of a fragile text search.",
+        "Boro tracks changelogs, deprecations and version sunsets. You don't get a generic alert. You get “this change hits your refund flow, deadline March 31.”",
     },
     {
-      label: "Fix",
-      title: "Migrated in your code's own style",
+      label: "Test",
+      title: "Nightly integration tests against sandboxes",
       description:
-        "An agent writes the change the way your team would, then runs your build and test suite to prove it works.",
+        "Boro writes tests for each workflow (webhook payloads, pagination, rate limits, retries, idempotency) and runs them on a schedule. It catches drift even when the provider announces nothing.",
     },
     {
-      label: "Ship",
-      title: "A focused PR, ready to merge",
+      label: "Repair",
+      title: "A pull request with the fix and the evidence",
       description:
-        "You get one pull request explaining what changed upstream and why. Review it, merge it, move on.",
+        "Boro opens a PR that says what changed, which tests failed before and pass after. A human reviews and merges.",
+    },
+  ],
+};
+
+export const integrationMap = {
+  eyebrow: "The integration map",
+  title: "One live map of everything your product depends on.",
+  description:
+    "Provider, call sites, business workflow and current health, in one place. It's the first thing Boro builds, and the place your platform team checks every day.",
+  workflows: [
+    {
+      name: "Checkout",
+      providers: ["Stripe", "Avalara"],
+      callSites: 14,
+      status: "healthy",
+      note: "All nightly tests passing",
+    },
+    {
+      name: "Refunds",
+      providers: ["Stripe"],
+      callSites: 6,
+      status: "failing",
+      note: "Webhook retry order changed · fix PR #214",
+    },
+    {
+      name: "Sign-up & login",
+      providers: ["Auth0"],
+      callSites: 9,
+      status: "warning",
+      note: "OAuth scope change in 30 days",
+    },
+    {
+      name: "Notifications",
+      providers: ["Twilio", "SendGrid"],
+      callSites: 11,
+      status: "healthy",
+      note: "All nightly tests passing",
+    },
+    {
+      name: "AI assistant",
+      providers: ["OpenAI"],
+      callSites: 5,
+      status: "warning",
+      note: "Model retires Jun 30 · migration PR #209",
+    },
+    {
+      name: "Order sync",
+      providers: ["Shopify"],
+      callSites: 8,
+      status: "healthy",
+      note: "API version 2026-10 adopted",
+    },
+  ],
+} as const;
+
+export const useCases = {
+  eyebrow: "Use cases",
+  title: "Whatever breaks next, Boro is already watching.",
+  description:
+    "Payments, commerce, messaging, AI, auth, data. If your product calls it, Boro keeps it working.",
+  items: [
+    {
+      id: "sunset",
+      label: "Version sunset",
+      title: "A provider retires the API version you're on",
+      description:
+        "Boro finds every affected call site, opens migration PRs well before the deadline, and shows progress on a shared board.",
+      example: "Shopify Admin API 2025-07 sunset · 23 call sites · 3 PRs",
+    },
+    {
+      id: "drift",
+      label: "Silent drift",
+      title: "Behavior changes with no announcement",
+      description:
+        "A nightly test fails because a webhook retry assumes an event order that no longer holds. Boro flags the workflow and drafts a fix before refunds break.",
+      example: "Stripe webhook order changed · refunds test failing",
+    },
+    {
+      id: "expiry",
+      label: "Expiring access",
+      title: "Tokens, scopes, limits and models run out",
+      description:
+        "An OAuth scope is about to change, a rate limit starts biting after a traffic spike, a model is being retired. Boro sends the alert with the fix attached.",
+      example: "OpenAI model retires in 30 days · PR #209 ready",
+    },
+    {
+      id: "incident",
+      label: "Incident to repair",
+      title: "Something breaks in production anyway",
+      description:
+        "Boro links the error spike to the provider change that caused it and drafts the repair, so diagnosis takes minutes instead of hours.",
+      example: "Twilio 429s up 40x · traced to new rate limit",
+    },
+  ],
+};
+
+export const journey = {
+  eyebrow: "What it's like",
+  title: "From first PR to the place you check integration health.",
+  description: "Read-only on day one. Indispensable by month three.",
+  stages: [
+    {
+      label: "Day 1",
+      feeling: "This found things we didn't know about.",
+      steps: [
+        "Install the GitHub app on a couple of repos and connect Slack. Read-only to start.",
+        "Boro builds the integration map in about an hour, grouped by workflow.",
+        "A first digest: upcoming sunsets, which workflows they hit, which have no tests.",
+        "The first PR: an API version migration with failing and passing test results attached.",
+      ],
+    },
+    {
+      label: "Week 1",
+      feeling: "This caught something before a customer did.",
+      steps: [
+        "Your team reviews and merges the migration PR, usually with small edits.",
+        "Boro proposes integration tests for your riskiest workflows, using sandbox keys.",
+        "A nightly run fails. Slack names the workflow, the likely cause and a draft fix PR.",
+        "On-call gets the integration map too.",
+      ],
+    },
+    {
+      label: "Month 3",
+      feeling: "This is where we check integration health.",
+      steps: [
+        "Boro runs on every repo. Nightly drift tests cover your revenue workflows.",
+        "Sunset deadlines live on a shared board, flagged weeks early with PRs ready.",
+        "When prod breaks, Boro links the error spike to the provider change and drafts the repair.",
+        "A monthly integration health report goes to engineering leadership.",
+      ],
     },
   ],
 };
 
 export const audiences = {
   eyebrow: "Who it's for",
-  title: "One loop. Two sides of every API.",
+  title: "Built for the people who own reliability.",
   tabs: [
     {
       key: "teams",
       tabLabel: "Engineering teams",
-      eyebrow: "For engineering teams",
-      title: "Never read a changelog again.",
+      eyebrow: "For platform and engineering leaders",
+      title: "Know every integration works. Before your customers tell you.",
       description:
-        "Boro is Dependabot for the APIs you call. When any vendor ships a change, you get a tested pull request instead of a surprise in production.",
+        "Boro gives your platform team one place to see integration health across every repo, and catches breakages before they reach production. Think of it as reliability tooling for everything outside your codebase.",
       bullets: [
-        "One focused PR per upstream change",
-        "Every vendor you depend on, tracked in one place",
-        "Nothing merges without your review",
+        "A live map of every integration and the workflow it serves",
+        "Nightly drift tests on your revenue-critical flows",
+        "Repair PRs with evidence. Nothing merges without your review",
       ],
     },
     {
       key: "providers",
       tabLabel: "API providers",
       eyebrow: "For API providers",
-      title: "Don't announce changes. Apply them.",
+      title: "Ship changes without breaking your customers.",
       description:
-        "Give your customers an update agent that migrates their code for them. Ship breaking changes without breaking anyone, and get new features adopted the week they launch.",
+        "Offer Boro to your customers. When you ship a breaking change or a new version, their integration map lights up and the migration PR is already waiting.",
       bullets: [
         "Ship breaking changes without the support tickets",
-        "Turn feature launches into merged PRs, not unread emails",
+        "Turn version sunsets into merged PRs, not unread emails",
         "See migration progress across every customer",
       ],
     },
@@ -193,50 +326,48 @@ export const audiences = {
 export const features = {
   eyebrow: "Features",
   title: "Built to be trusted with your code.",
-  description:
-    "Everything Boro does ends in a pull request you control.",
+  description: "Everything Boro does ends in a pull request you control.",
   items: [
     {
-      id: "vendors",
-      title: "Every vendor, one place",
+      id: "map",
+      title: "Integration map",
       description:
-        "Track all the APIs and SDKs your product depends on from a single dashboard.",
+        "Every provider, every call site, every workflow it powers, across all your repos.",
     },
     {
-      id: "sources",
-      title: "Reads the fine print",
+      id: "alerts",
+      title: "Alerts with context",
       description:
-        "Changelogs, OpenAPI diffs, SDK releases and deprecation headers, all parsed for you.",
+        "Names the workflow and the deadline. “This hits refunds by March 31,” not “API updated.”",
     },
     {
-      id: "language",
-      title: "Code-aware, not text-aware",
+      id: "tests",
+      title: "Nightly drift tests",
       description:
-        "Understands your code's structure and conventions, so fixes look like your team wrote them.",
+        "Webhooks, pagination, rate limits, retries and idempotency, run against sandboxes in your CI.",
     },
     {
       id: "control",
       title: "You stay in control",
       description:
-        "Scoped permissions and reviewable diffs. Boro proposes changes; your team decides what ships.",
+        "Read-only to start. Scoped permissions and reviewable diffs. Boro proposes; your team decides what ships.",
     },
     {
-      id: "tested",
-      title: "Tested before you see it",
+      id: "evidence",
+      title: "Repair PRs with evidence",
       description:
-        "Runs your CI before opening the PR, so you only review green builds.",
+        "What changed upstream, which tests failed before, which pass after.",
     },
     {
-      id: "adoption",
-      title: "Features, not just fixes",
+      id: "health",
+      title: "Integration health board",
       description:
-        "When a vendor launches something useful, Boro opens a PR that adopts it.",
+        "Deadlines, test status and open repairs on one shared board, plus a monthly report for leadership.",
     },
     {
       id: "notify",
-      title: "Notified where you work",
-      description:
-        "PR summaries land in GitHub and Slack with the upstream context attached.",
+      title: "Lives where you work",
+      description: "GitHub, CI and Slack. No new tool for your team to babysit.",
     },
   ],
 };
@@ -247,39 +378,42 @@ export const faqs = {
   description: "Everything you need to know about Boro.",
   items: [
     {
-      q: "Does Boro need access to my code?",
-      a: "Boro needs read access to find affected usages and permission to open pull requests. It never pushes to protected branches and never merges anything. Every change is a PR your team reviews.",
+      q: "How is this different from Claude Code, Cursor or Devin?",
+      a: "Coding agents are great at making a change when you ask for one. Boro is always on: it keeps the integration map, watches every provider, runs drift tests every night, and starts the repair before anyone asks. It's reliability tooling, not a chat window.",
     },
     {
-      q: "How does Boro know an API changed?",
-      a: "It monitors changelogs, OpenAPI specs, SDK releases and deprecation notices for the APIs you depend on, then turns each relevant change into a concrete code migration.",
+      q: "Does Boro need access to my code?",
+      a: "Boro starts read-only to build the integration map. To open repair PRs it needs permission to create pull requests. It never pushes to protected branches and never merges anything. Every change is a PR your team reviews.",
+    },
+    {
+      q: "Does Boro touch production?",
+      a: "No. Integration tests run against provider sandboxes with sandbox keys you approve, inside your CI. For incidents, Boro reads the error signals you connect; it doesn't call your production APIs.",
     },
     {
       q: "How is this different from Dependabot?",
-      a: "Dependabot bumps version numbers. Boro changes your code: it rewrites the call sites a breaking change affects, adopts new features, and opens a PR that already passes your tests.",
+      a: "Dependabot bumps package versions. Boro covers the API behind the package: it maps which workflows depend on it, tests the integration, catches changes nobody announced, and rewrites your code when it needs to change.",
+    },
+    {
+      q: "Which providers and languages are supported?",
+      a: "Any outside API your code calls. We're starting with TypeScript and the most common providers in payments, commerce, messaging, auth and AI, and prioritizing the rest by waitlist demand. Tell us your stack when you sign up.",
     },
     {
       q: "I run an API. How does Boro work for me?",
       partner: true,
-      a: "Offer Boro as your update agent. When you ship a breaking change or a new feature, Boro opens pull requests in your opted-in customers' codebases, so migrations take days instead of quarters.",
-    },
-    {
-      q: "Which languages and frameworks are supported?",
-      a: "We're prioritizing based on waitlist demand. Tell us your stack when you sign up and we'll let you know when it's supported.",
+      a: "Offer Boro to your customers. When you ship a breaking change or retire a version, Boro opens migration PRs in your opted-in customers' codebases, so migrations take days instead of quarters.",
     },
     {
       q: "How much does it cost?",
       partner: true,
-      a: "Boro is in private beta. Join the waitlist and we'll share pricing as early access opens.",
+      a: "Boro is in private beta. Pricing will be per integration or per repo, never per PR. Join the waitlist and we'll share details as early access opens.",
     },
   ],
 };
 
 export const finalCta = {
-  titleLead: "Stop reading changelogs.",
-  titleAccent: "Start merging PRs.",
-  description:
-    "Join the waitlist for early access to self-maintaining APIs.",
+  titleLead: "Know your integrations work.",
+  titleAccent: "Before your customers tell you.",
+  description: "Join the waitlist for early access to Boro.",
   note: "We'll only email you about early access.",
-  partnerPrompt: "Evaluating Boro for your API or your team?",
+  partnerPrompt: "Want to shape Boro with us?",
 };

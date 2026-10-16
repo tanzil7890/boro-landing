@@ -1,12 +1,12 @@
 "use client";
 
-import { CircleCheck, Eye, GitCommitHorizontal, Radar, ScanSearch, type LucideIcon } from "lucide-react";
+import { CircleCheck, CircleX, Eye, FlaskConical, GitCommitHorizontal, Network, Radar, type LucideIcon } from "lucide-react";
 import { motion, useScroll, useSpring } from "motion/react";
 import { useRef, type ReactNode } from "react";
 import { Highlight } from "@/components/ui/Highlight";
-import { howItWorks as steps } from "@/lib/content";
+import { howItWorks as steps, integrationMap } from "@/lib/content";
 import { cn, EASE_OUT } from "@/lib/utils";
-import { howItWorks } from "./content";
+import { howItWorks, pr } from "./content";
 import { Code, DiffRow, Label, SectionIntro } from "./primitives";
 
 type Event = {
@@ -18,111 +18,175 @@ type Event = {
   detail?: ReactNode;
 };
 
-const USAGES = [
-  { file: "acme/web · src/billing/checkout.ts", count: 2 },
-  { file: "acme/web · src/api/refunds.ts", count: 1 },
-  { file: "acme/workers · jobs/invoice.ts", count: 1 },
+const WORKFLOWS = integrationMap.workflows;
+const CALL_SITES = WORKFLOWS.reduce((n, w) => n + w.callSites, 0);
+const PROVIDERS = new Set(WORKFLOWS.flatMap((w) => w.providers)).size;
+
+const STATUS_DOT = {
+  healthy: "bg-pr-add",
+  warning: "bg-[#bf8700]",
+  failing: "bg-pr-del",
+} as const;
+
+const ALERTS = [
+  { provider: "openai", change: "model retires Jun 30", workflow: "AI assistant", action: "migration PR #209" },
+  { provider: "auth0", change: "OAuth scope change", workflow: "Sign-up & login", action: "deadline in 30 days" },
+];
+
+const TEST_OUTPUT: { ok: boolean; name: string }[] = [
+  { ok: true, name: "refunds · full refund issues credit" },
+  { ok: true, name: "refunds · partial refund updates order total" },
+  { ok: false, name: "refunds · webhook retry is idempotent" },
 ];
 
 const COMMIT_DIFF: { kind: "add" | "del" | "ctx"; code: string }[] = [
-  { kind: "del", code: "const charge = await stripe.charges.create({" },
-  { kind: "add", code: "const intent = await stripe.paymentIntents.create({" },
-  { kind: "ctx", code: "  amount: order.total," },
-  { kind: "del", code: "  source: order.cardToken," },
-  { kind: "add", code: "  payment_method: order.paymentMethodId," },
-  { kind: "add", code: "  confirm: true," },
-  { kind: "ctx", code: "});" },
+  { kind: "ctx", code: 'case "refund.updated":' },
+  { kind: "del", code: "  // assumes charge.refunded already arrived" },
+  { kind: "del", code: "  await markRefunded(lastChargeEvent.id);" },
+  { kind: "add", code: "  await refunds.upsert(event.data.object.id, {" },
+  { kind: "add", code: "    status: event.data.object.status," },
+  { kind: "add", code: "  }, { idempotencyKey: event.id });" },
+  { kind: "ctx", code: "  break;" },
+];
+
+const EVIDENCE = [
+  { ok: false, label: "Before", result: "1 failing · refunds · webhook retry is idempotent" },
+  { ok: true, label: "After", result: "6/6 passing · refunds workflow" },
 ];
 
 const EVENTS: Event[] = [
   {
-    icon: Radar,
-    step: "01 · Detect",
+    icon: Network,
+    step: `01 · ${steps.steps[0].label}`,
     text: (
       <>
-        detected a breaking change in <Code>stripe</Code> API <Code>2026-09-30</Code> <Label tone="red">breaking-change</Label>
+        mapped <b className="text-pr-ink">{CALL_SITES} call sites</b> to <b className="text-pr-ink">{PROVIDERS} providers</b>{" "}
+        across <b className="text-pr-ink">{WORKFLOWS.length} workflows</b>
       </>
     ),
     description: steps.steps[0].description,
     detail: (
-      <blockquote className="rounded-md border border-pr-line border-l-4 border-l-pr-del bg-pr-canvas px-4 py-3 font-jet text-[13px] leading-relaxed">
-        <div className="text-pr-muted">stripe/CHANGELOG.md · 2026-09-30</div>
-        <div className="mt-1">
-          <b>Breaking:</b> <Code>charges.create</Code> has been removed. Migrate to <Code>paymentIntents.create</Code>.
-        </div>
-      </blockquote>
+      <ul className="divide-y divide-pr-line rounded-md border border-pr-line font-jet text-[13px]">
+        {WORKFLOWS.map((w) => (
+          <li key={w.name} className="flex items-center gap-3 px-4 py-2">
+            <span aria-hidden className={cn("size-2 shrink-0 rounded-full", STATUS_DOT[w.status])} />
+            <span className="truncate font-medium text-pr-ink">{w.name}</span>
+            <span className="hidden truncate text-pr-muted sm:inline">{w.providers.join(", ")}</span>
+            <span className="ml-auto shrink-0 rounded-full bg-[#818b981f] px-2 text-xs text-pr-muted">
+              {w.callSites} call sites
+            </span>
+            <span className="sr-only">status: {w.status}</span>
+          </li>
+        ))}
+      </ul>
     ),
   },
   {
-    icon: ScanSearch,
-    step: "02 · Scan",
+    icon: Radar,
+    step: `02 · ${steps.steps[1].label}`,
     text: (
       <>
-        scanned <b className="text-pr-ink">3 repositories</b> and found <b className="text-pr-ink">4 usages</b> of{" "}
-        <Code>charges.create</Code>
+        is watching changelogs, deprecations and version sunsets for all <b className="text-pr-ink">{PROVIDERS} providers</b>
       </>
     ),
     description: steps.steps[1].description,
     detail: (
       <ul className="divide-y divide-pr-line rounded-md border border-pr-line font-jet text-[13px]">
-        {USAGES.map((u) => (
-          <li key={u.file} className="flex items-center gap-3 px-4 py-2">
-            <span className="truncate">{u.file}</span>
-            <span className="ml-auto shrink-0 rounded-full bg-[#fff8c5] px-2 text-xs text-pr-warn">
-              {u.count} {u.count === 1 ? "usage" : "usages"}
-            </span>
+        {ALERTS.map((a) => (
+          <li key={a.provider} className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
+            <span className="text-pr-muted">{a.provider}</span>
+            <span>{a.change}</span>
+            <span className="text-pr-muted">→ hits</span>
+            <span className="font-medium text-pr-ink">{a.workflow}</span>
+            <span className="ml-auto shrink-0 rounded-full bg-[#fff8c5] px-2 text-xs text-pr-warn">{a.action}</span>
           </li>
         ))}
       </ul>
     ),
   },
   {
-    icon: GitCommitHorizontal,
-    step: "03 · Fix",
-    text: <>added 1 commit</>,
+    icon: FlaskConical,
+    step: `03 · ${steps.steps[2].label}`,
+    text: (
+      <>
+        nightly run failed <Code>refunds · webhook retry is idempotent</Code> <Label tone="red">silent-drift</Label>
+      </>
+    ),
     description: steps.steps[2].description,
     detail: (
-      <div className="overflow-hidden rounded-md border border-pr-line">
-        <div className="flex items-center gap-3 border-b border-pr-line bg-pr-canvas px-4 py-2 text-sm">
-          <span className="font-medium">Migrate charges.create → paymentIntents.create</span>
-          <span className="ml-auto font-jet text-xs text-pr-muted">a1f3c9e</span>
-        </div>
-        <div className="font-jet text-[13px] leading-6">
-          {COMMIT_DIFF.map((line, i) => (
-            <DiffRow key={i} kind={line.kind} oldNo={40 + i} newNo={40 + i} className="[&>div]:py-0">
-              <span className="whitespace-pre">
-                <Highlight code={line.code} palette="light" />
-              </span>
-            </DiffRow>
+      <div className="overflow-hidden rounded-md border border-pr-line font-jet text-[13px] leading-relaxed">
+        <ul className="divide-y divide-pr-line">
+          {TEST_OUTPUT.map((t) => (
+            <li key={t.name} className={cn("flex items-center gap-2 px-4 py-1.5", !t.ok && "bg-pr-del-bg/60")}>
+              {t.ok ? (
+                <CircleCheck aria-label="passed" className="size-4 shrink-0 text-pr-add" />
+              ) : (
+                <CircleX aria-label="failed" className="size-4 shrink-0 text-pr-del" />
+              )}
+              <span>{t.name}</span>
+            </li>
           ))}
+        </ul>
+        <div className="border-t border-pr-line border-l-4 border-l-pr-del bg-pr-canvas px-4 py-3">
+          <div className="text-pr-muted">stripe sandbox · nightly</div>
+          <div className="mt-1">
+            Stripe now sends <Code>refund.updated</Code> before <Code>charge.refunded</Code>. The handler assumed the
+            opposite order.
+          </div>
+          <div className="mt-1 text-pr-muted">changelog entry: none</div>
         </div>
       </div>
     ),
   },
   {
-    icon: CircleCheck,
-    step: "04 · Ship",
-    done: true,
+    icon: GitCommitHorizontal,
+    step: `04 · ${steps.steps[3].label}`,
     text: (
       <>
-        <b className="text-pr-ink">All checks have passed</b> · 3 successful checks
+        opened <b className="text-pr-ink">#{pr.number}</b> with 1 commit to <Code>src/webhooks/stripe.ts</Code>
       </>
     ),
     description: steps.steps[3].description,
     detail: (
-      <ul className="divide-y divide-pr-line rounded-md border border-pr-line text-sm">
-        {[
-          ["Tests", "142 passed"],
-          ["Type check", "no errors"],
-          ["Lint", "clean"],
-        ].map(([name, result]) => (
-          <li key={name} className="flex items-center gap-2 px-4 py-2">
-            <CircleCheck className="size-4 text-pr-add" />
-            <span className="font-medium">{name}</span>
-            <span className="text-pr-muted">· {result}</span>
-          </li>
-        ))}
-      </ul>
+      <div className="space-y-3">
+        <div className="overflow-hidden rounded-md border border-pr-line">
+          <div className="flex items-center gap-3 border-b border-pr-line bg-pr-canvas px-4 py-2 text-sm">
+            <span className="font-medium">Make refund webhook handler order-independent</span>
+            <span className="ml-auto font-jet text-xs text-pr-muted">a1f3c9e</span>
+          </div>
+          <div className="font-jet text-[13px] leading-6">
+            {COMMIT_DIFF.map((line, i) => (
+              <DiffRow key={i} kind={line.kind} oldNo={40 + i} newNo={40 + i} className="[&>div]:py-0">
+                <span className="whitespace-pre">
+                  <Highlight code={line.code} palette="light" />
+                </span>
+              </DiffRow>
+            ))}
+          </div>
+        </div>
+        <ul className="divide-y divide-pr-line rounded-md border border-pr-line text-sm">
+          {EVIDENCE.map((e) => (
+            <li key={e.label} className="flex items-center gap-2 px-4 py-2">
+              {e.ok ? (
+                <CircleCheck aria-hidden className="size-4 shrink-0 text-pr-add" />
+              ) : (
+                <CircleX aria-hidden className="size-4 shrink-0 text-pr-del" />
+              )}
+              <span className="font-medium">{e.label}</span>
+              <span className="text-pr-muted">· {e.result}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ),
+  },
+  {
+    icon: CircleCheck,
+    done: true,
+    text: (
+      <>
+        <b className="text-pr-ink">All checks have passed</b> · refunds 6/6, type check, lint
+      </>
     ),
   },
   {

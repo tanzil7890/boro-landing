@@ -101,7 +101,7 @@ export function HeroDiff({ merged, onMerged }: { merged: boolean; onMerged: (ema
         <span className="font-jet text-sm text-pr-muted">{"// private beta · no spam, ever"}</span>
       </DiffRow>
       <DiffRow kind="ctx" oldNo={5} newNo={5} className="pb-3">
-        <span className="font-jet text-sm text-pr-muted">{"// run an API? "}</span>
+        <span className="font-jet text-sm text-pr-muted">{`// ${hero.partnerPrompt.toLowerCase()} `}</span>
         <PartnerLink placement="hero" className="font-jet text-sm">
           become a design partner
         </PartnerLink>

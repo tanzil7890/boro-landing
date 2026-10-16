@@ -6,7 +6,7 @@ const sans = Instrument_Sans({ subsets: ["latin"], variable: "--nf-isans" });
 const plex = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--nf-plex" });
 
 export const metadata: Metadata = {
-  title: "Boro · Direction 3: The Changelog Nobody Reads",
+  title: "Boro · Direction 3: The Integration Desk",
   robots: { index: false, follow: false },
 };
 
