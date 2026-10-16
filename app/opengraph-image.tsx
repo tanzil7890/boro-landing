@@ -41,7 +41,7 @@ export default function Image() {
             lineHeight: 1.04,
           }}
         >
-          <span>APIs that</span>
+          <span>Every integration,</span>
           <span
             style={{
               backgroundImage: "linear-gradient(90deg, #7C5CFF, #22D3EE)",
@@ -49,11 +49,11 @@ export default function Image() {
               color: "transparent",
             }}
           >
-            maintain themselves.
+            always working.
           </span>
         </div>
         <div style={{ marginTop: 36, fontSize: 32, color: "#8A8F98" }}>
-          Breaking change upstream → pull request in your repo.
+          Map · Watch · Test · Repair. Fixed before your customers notice.
         </div>
       </div>
     ),

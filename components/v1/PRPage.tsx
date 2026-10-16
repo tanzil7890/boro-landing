@@ -77,8 +77,9 @@ function Sidebar({ merged }: { merged: boolean }) {
         </Block>
         <Block title="Labels">
           <div className="flex flex-wrap gap-1">
-            <Label tone="red">breaking-change</Label>
-            <Label tone="blue">api:stripe</Label>
+            <Label tone="red">silent-drift</Label>
+            <Label tone="blue">workflow:refunds</Label>
+            <Label tone="amber">api:stripe</Label>
             <Label tone="purple">automated</Label>
             <Label tone="green">tests-passing</Label>
           </div>
@@ -90,7 +91,7 @@ function Sidebar({ merged }: { merged: boolean }) {
           <p className="mt-1.5 font-semibold">Private beta</p>
         </Block>
         <Block title="Design partners">
-          <p className="text-xs text-pr-muted">Run an API? Shape Boro with us before launch.</p>
+          <p className="text-xs text-pr-muted">Run a platform team? Shape Boro with us before launch.</p>
           <PartnerLink placement="sidebar" className="mt-1.5 text-sm">
             Book a call
           </PartnerLink>
@@ -99,8 +100,8 @@ function Sidebar({ merged }: { merged: boolean }) {
           <p className="flex items-start gap-1.5">
             <CircleDot className="mt-0.5 size-4 shrink-0 text-pr-merged" />
             <span>
-              Fixes <span className="font-semibold">Changelogs nobody reads</span>{" "}
-              <span className="text-pr-muted">#0</span>
+              Fixes <span className="font-semibold">Refunds test failing after Stripe webhook order changed</span>{" "}
+              <span className="text-pr-muted">#213</span>
             </span>
           </p>
         </Block>

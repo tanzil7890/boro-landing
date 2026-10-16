@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useId } from "react";
 import { useWaitlist } from "@/lib/useWaitlist";
 import { cn, EASE_OUT } from "@/lib/utils";
+import { finalCta } from "@/lib/content";
 import { review } from "./content";
 import { PartnerLink } from "./DesignPartner";
 import { greenButton } from "./primitives";
@@ -114,7 +115,7 @@ export function ReviewBox({
 
               <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
                 <p className="text-sm text-pr-muted">
-                  Run an API? <PartnerLink placement="review" />
+                  {finalCta.partnerPrompt} <PartnerLink placement="review" />
                 </p>
                 <button type="submit" disabled={isLoading} className={cn(greenButton, "px-5 py-2 text-[15px]")}>
                   {isLoading ? "Submitting…" : "Submit review"}

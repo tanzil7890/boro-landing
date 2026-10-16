@@ -15,8 +15,8 @@ type PRCardProps = {
 /** Pull request summary card; checks tick in one by one on mount. */
 export function PRCard({
   className,
-  title = "Migrate stripe.charges → PaymentIntents",
-  number = 128,
+  title = "Make refund webhook handler order-independent",
+  number = 214,
 }: PRCardProps) {
   return (
     <div

@@ -13,6 +13,7 @@ import { Fragment, useId, useRef, useState, type ReactNode } from "react";
 import { LogoMark } from "@/components/ui/Logo";
 import { useWaitlist } from "@/lib/useWaitlist";
 import { cn } from "@/lib/utils";
+import { hero } from "@/lib/content";
 import { deps, stage } from "./content";
 import { PartnerLink } from "./DesignPartner";
 import { scramble } from "./scramble";
@@ -39,11 +40,11 @@ function sceneAt(p: number): Scene {
 }
 
 const STATUS: Record<Scene, { text: string; dot: string }> = {
-  ok: { text: "all systems normal", dot: "bg-brk-green" },
-  broken: { text: "4 errors", dot: "bg-brk-red" },
-  scanning: { text: "boro is scanning", dot: "bg-brk-amber" },
+  ok: { text: "all integrations passing", dot: "bg-brk-green" },
+  broken: { text: "nightly test failed", dot: "bg-brk-red" },
+  scanning: { text: "boro is tracing the drift", dot: "bg-brk-amber" },
   repairing: { text: "boro is repairing", dot: "bg-brk-amber" },
-  healed: { text: "healed by boro", dot: "bg-brk-green" },
+  healed: { text: "repaired by boro", dot: "bg-brk-green" },
 };
 
 // How far each headline word gets knocked out of place at full damage.
@@ -54,7 +55,7 @@ const DISPLACE = [
   { x: 28, y: 8, r: 6 },
 ];
 
-/** Damage for one element: rises as the break ships, falls back to 0 as Boro heals it. */
+/** Damage for one element: rises as the drift hits, falls back to 0 as Boro heals it. */
 function useDamage(brk: MotionValue<number>, p: MotionValue<number>, heal: [number, number]) {
   const healed = useTransform(p, heal, [0, 1]);
   return useTransform(() => brk.get() * (1 - healed.get()));
@@ -62,7 +63,8 @@ function useDamage(brk: MotionValue<number>, p: MotionValue<number>, heal: [numb
 
 /**
  * Direction 2's signature: a pinned, scroll-scrubbed scene where the hero breaks
- * (an upstream API changed), Boro scans it, repairs it, and merges the fix.
+ * (an outside API silently changed and the nightly test caught it), Boro traces it
+ * to the call site, repairs it, and the reviewed fix gets merged.
  */
 export function Stage() {
   const ref = useRef<HTMLElement>(null);
@@ -89,7 +91,7 @@ export function Stage() {
         <div className="relative mx-auto flex h-full max-w-6xl flex-col justify-center-safe px-6 pb-24 pt-20 sm:pt-24 [@media(min-height:860px)]:pb-40">
           <p className="font-jet text-xs text-brk-dim">{stage.eyebrow}</p>
 
-          <ScanTarget p={p} reveal={REVEAL.head} heal={HEAL.head} label="Hero.tsx:12 · renders <JoinForm />" className="mt-4 sm:mt-5">
+          <ScanTarget p={p} reveal={REVEAL.head} heal={HEAL.head} label={stage.labels.head} className="mt-4 sm:mt-5">
             <h1
               className={cn(
                 "text-[min(9.5vw,13vh)] font-bold leading-[0.88] tracking-[-0.05em]",
@@ -108,20 +110,20 @@ export function Stage() {
             </h1>
           </ScanTarget>
 
-          <ScanTarget p={p} reveal={REVEAL.sub} heal={HEAL.sub} label="Copy.tsx:8 · pricing.plans.list" className="mt-5 max-w-2xl sm:mt-7">
+          <ScanTarget p={p} reveal={REVEAL.sub} heal={HEAL.sub} label={stage.labels.sub} className="mt-5 max-w-2xl sm:mt-7">
             <BrokenText text={stage.description} dmg={sub} />
           </ScanTarget>
 
           <div className="mt-8 flex flex-wrap items-start gap-x-10 gap-y-5 sm:gap-y-8 [@media(min-height:820px)]:mt-12">
-            <ScanTarget p={p} reveal={REVEAL.form} heal={HEAL.form} label="JoinForm.tsx:31 · waitlist.join" className="w-full max-w-xl">
+            <ScanTarget p={p} reveal={REVEAL.form} heal={HEAL.form} label={stage.labels.form} className="w-full max-w-xl">
               <StageForm dmg={form} />
             </ScanTarget>
-            <ScanTarget p={p} reveal={REVEAL.deps} heal={HEAL.deps} label="package.json · waitlist-api@2" className="mt-3 w-fit">
-              <DepChips shipped={scene !== "ok"} broken={depsBroken} />
+            <ScanTarget p={p} reveal={REVEAL.deps} heal={HEAL.deps} label={stage.labels.deps} className="mt-3 w-fit">
+              <DepChips broken={depsBroken} />
             </ScanTarget>
           </div>
           <p className="mt-5 font-jet text-xs text-brk-dim">
-            run an API? <PartnerLink placement="hero" />
+            {hero.partnerPrompt.toLowerCase()} <PartnerLink placement="hero" />
           </p>
         </div>
 
@@ -265,12 +267,11 @@ function StageForm({ dmg }: { dmg: MotionValue<number> }) {
   );
 }
 
-function DepChips({ shipped, broken }: { shipped: boolean; broken: boolean }) {
+function DepChips({ broken }: { broken: boolean }) {
   return (
     <div className="flex flex-wrap gap-2 font-jet text-xs">
       {deps.map((dep) => {
         const bad = broken && dep.breaks;
-        const version = shipped ? dep.after : dep.before;
         return (
           <span
             key={dep.name}
@@ -279,7 +280,7 @@ function DepChips({ shipped, broken }: { shipped: boolean; broken: boolean }) {
               bad ? "border-brk-red/50 bg-brk-red/10 text-brk-red" : "border-brk-line text-brk-dim",
             )}
           >
-            {dep.name} {version}
+            {dep.name} <span className="opacity-60">→ {dep.workflow}</span>
             {bad ? <X className="size-3" /> : <Check className="size-3 text-brk-green" />}
           </span>
         );
@@ -366,7 +367,7 @@ function Toast({ p, healed }: { p: MotionValue<number>; healed: boolean }) {
           animate={{ opacity: 1, height: "auto" }}
           className="overflow-hidden text-brk-green"
         >
-          <div className="mt-3 border-t border-brk-line pt-3">✓ handled by boro · PR #128 merged</div>
+          <div className="mt-3 border-t border-brk-line pt-3">✓ repaired by boro · {stage.merged.title}</div>
         </motion.div>
       )}
     </motion.div>
@@ -397,7 +398,7 @@ function ConsolePanel({ p }: { p: MotionValue<number> }) {
           <ConsoleLine key={line.text} level={line.level} text={line.text} p={p} at={0.12 + i * 0.03} />
         ))}
         <motion.div style={{ opacity: cleared }} className="text-[11px] leading-5 text-brk-green">
-          ✓ 0 errors · all call sites fixed
+          ✓ 0 errors · waitlist workflow passing
         </motion.div>
       </div>
     </motion.div>
@@ -430,7 +431,7 @@ function Scanline({ p }: { p: MotionValue<number> }) {
       className="pointer-events-none absolute inset-x-0 z-10 h-28 border-b-2 border-brk-green bg-linear-to-b from-transparent to-brk-green/15 shadow-[0_10px_40px_rgb(48_209_88/0.35)]"
     >
       <span className="absolute bottom-2 right-6 font-jet text-[10px] uppercase tracking-[0.2em] text-brk-green">
-        boro · scanning 3 repos
+        boro · tracing the failing test
       </span>
     </motion.div>
   );
@@ -448,8 +449,9 @@ function DiffCard({ p }: { p: MotionValue<number> }) {
       <div className="bg-brk-red/10 px-4 py-2 text-brk-red">− {stage.diff.del}</div>
       <div className="bg-brk-green/10 px-4 py-2 text-brk-green">+ {stage.diff.add}</div>
       <div className="space-y-1 px-4 py-3 text-brk-dim">
-        <div>✓ 4 call sites updated</div>
-        <div>✓ 142 tests passed</div>
+        {stage.diff.notes.map((note) => (
+          <div key={note}>✓ {note}</div>
+        ))}
       </div>
     </motion.div>
   );
@@ -474,11 +476,11 @@ function MergedCard({ p }: { p: MotionValue<number> }) {
   );
 }
 
-/** Progress rail on the left: break → scan → repair → merged. */
+/** Progress rail on the left: drift → trace → repair → merged. */
 function Rail({ p }: { p: MotionValue<number> }) {
   const stops: [string, number][] = [
-    ["break", BREAK[0]],
-    ["scan", SCAN[0]],
+    ["drift", BREAK[0]],
+    ["trace", SCAN[0]],
     ["repair", HEAL.head[0]],
     ["merged", 0.86],
   ];
@@ -512,7 +514,7 @@ export function StaticStory() {
       </div>
       <div className="mt-16 grid gap-4 font-jet text-xs md:grid-cols-2">
         <div className="rounded-md border border-brk-red/40 bg-brk-panel p-4">
-          <div className="text-brk-dim">before · waitlist-api v2 shipped</div>
+          <div className="text-brk-dim">before · nightly test failed · no changelog entry</div>
           {stage.console.slice(0, 4).map((line) => (
             <div key={line.text} className={line.level === "error" ? "mt-1 text-brk-red" : "mt-1 text-brk-dim"}>
               {line.text}
